@@ -1,24 +1,38 @@
-import logo from './logo.svg';
+import { createContext, useEffect, useState } from 'react';
 import './App.css';
+import Buttons from './components/Buttons/Buttons';
+import Map from './components/Map/Map';
+import Streams from './components/Streams/Streams';
+
+export const Context = createContext(); //context api
 
 function App() {
+  const [streams, setStreams] = useState([]); //streams links
+  const [select, setSelect] = useState([]); //selected link
+  useEffect(() => {
+    fetch('https://care-box-backend.herokuapp.com/api/v1/applicant_test/get_video_link/')
+      .then(res => res.json())
+      .then(data => setStreams(data));
+  }, []); //fetching stream data
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Context.Provider value={[select, setSelect]}>
+      <div className="App">
+        <div className="text-center bg-secondary text-white p-5">
+          <div className="row">
+            <div className="col-lg-8">
+              <Streams select={select}></Streams>
+            </div>
+            <div className="col-lg-4">
+              <h5>List of Videos</h5>
+              {
+                streams.map(stream => <Buttons key={stream.id} streams={stream}></Buttons>)
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <Map></Map>
+    </Context.Provider>
   );
 }
 
